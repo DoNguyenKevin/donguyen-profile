@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; background: linear-gradient(145deg, #2c3e50, #1a252f);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .calculator {
+      width: 340px; background: #1e2a36;
+      border-radius: 20px; padding: 25px 20px 30px;
+      box-shadow:
+        0 20px 60px rgba(0,0,0,.6),
+        inset 0 1px 0 rgba(255,255,255,.08);
+      border-bottom: 3px solid #0f151a;
+    }
+    .brand {
+      color: #6c8699; font-size: .7rem; text-transform: uppercase;
+      letter-spacing: 2px; margin-bottom: 12px; padding-left: 5px;
+    }
+    .display {
+      background: #a3c1a3; color: #1a2b1a;
+      font-family: 'Courier New', monospace; font-size: 2.4rem;
+      font-weight: bold; padding: 15px 18px; border-radius: 8px;
+      text-align: right; min-height: 76px; margin-bottom: 20px;
+      word-break: break-all; letter-spacing: 1px;
+      box-shadow: inset 0 3px 8px rgba(0,0,0,.3);
+      border-bottom: 2px solid #7a9a7a;
+    }
+    .display .sub {
+      font-size: 1rem; color: #3a5a3a; min-height: 22px;
+      font-weight: normal; margin-top: 2px;
+    }
+    .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    button {
+      padding: 18px 10px; font-size: 1.3rem; font-weight: 600;
+      border: none; border-radius: 10px; cursor: pointer;
+      background: #2b3b48; color: #d4e2ed;
+      box-shadow: 0 4px 0 #0f151a, inset 0 1px 0 rgba(255,255,255,.1);
+      transition: all .06s ease; position: relative; top: 0;
+    }
+    button:active {
+      top: 3px; box-shadow: 0 1px 0 #0f151a;
+    }
+    button.num { background: #34495e; color: #ecf0f1; }
+    button.op {
+      background: #3a5068; color: #5dade2; font-size: 1.5rem;
+    }
+    button.func {
+      background: #3d3d5c; color: #a88bdb; font-size: 1rem;
+    }
+    button.eq {
+      background: #d35400; color: #fff; font-size: 1.6rem;
+      box-shadow: 0 4px 0 #873d00, inset 0 1px 0 rgba(255,255,255,.2);
+    }
+    button.eq:active { box-shadow: 0 1px 0 #873d00; }
+    button.clear {
+      background: #5c2e3a; color: #e74c3c; font-size: 1rem;
+    }
+    button.span2 { grid-column: span 2; }
+    button.zero { grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="brand">Calculator</div>
+    <div class="display" id="display">
+      <div id="mainDisplay">0</div>
+      <div class="sub" id="subDisplay">&nbsp;</div>
+    </div>
+    <div class="buttons">
+      <button class="clear" onclick="clearAll()">AC</button>
+      <button class="func" onclick="toggleSign()">±</button>
+      <button class="func" onclick="percent()">%</button>
+      <button class="op" onclick="input('/')">÷</button>
+
+      <button class="num" onclick="input('7')">7</button>
+      <button class="num" onclick="input('8')">8</button>
+      <button class="num" onclick="input('9')">9</button>
+      <button class="op" onclick="input('*')">×</button>
+
+      <button class="num" onclick="input('4')">4</button>
+      <button class="num" onclick="input('5')">5</button>
+      <button class="num" onclick="input('6')">6</button>
+      <button class="op" onclick="input('-')">−</button>
+
+      <button class="num" onclick="input('1')">1</button>
+      <button class="num" onclick="input('2')">2</button>
+      <button class="num" onclick="input('3')">3</button>
+      <button class="op" onclick="input('+')">+</button>
+
+      <button class="num zero" onclick="input('0')">0</button>
+      <button class="num" onclick="input('.')">.</button>
+      <button class="eq" onclick="calculate()">=</button>
+    </div>
+  </div>
+
+  <script>
+    const main = document.getElementById('mainDisplay');
+    const sub = document.getElementById('subDisplay');
+    let reset = false;
+
+    function input(val) {
+      if (reset) { main.textContent = '0'; reset = false; }
+      if (val === '.' && main.textContent.includes('.')) return;
+      main.textContent = main.textContent === '0' && val !== '.' ? val : main.textContent + val;
+    }
+
+    function calculate() {
+      try {
+        let expr = main.textContent
+          .replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+        const result = Function('"use strict"; return (' + expr + ')')();
+        const str = Number.isFinite(result) ? String(result) : 'Error';
+        sub.textContent = main.textContent + ' =';
+        main.textContent = str;
+        reset = true;
+      } catch { main.textContent = 'Error'; reset = true; }
+    }
+
+    function clearAll() {
+      main.textContent = '0'; sub.innerHTML = '&nbsp;'; reset = false;
+    }
+
+    function backspace() {
+      main.textContent = main.textContent.slice(0, -1) || '0';
+    }
+
+    function toggleSign() {
+      if (main.textContent !== '0') {
+        main.textContent = main.textContent.startsWith('-')
+          ? main.textContent.slice(1) : '-' + main.textContent;
+      }
+    }
+
+    function percent() {
+      try {
+        const val = parseFloat(main.textContent);
+        if (!isNaN(val)) { main.textContent = String(val / 100); reset = true; }
+      } catch {}
+    }
+
+    document.addEventListener('keydown', e => {
+      const k = e.key;
+      if (k >= '0' && k <= '9') { input(k); return; }
+      if (k === '.') { input('.'); return; }
+      if (k === 'Enter' || k === '=') { e.preventDefault(); calculate(); return; }
+      if (k === 'Backspace') { backspace(); return; }
+      if (k === 'Escape') { clearAll(); return; }
+      if (k === '+' || k === '-' || k === '*' || k === '/') {
+        input(k === '-' ? '-' : k);
+      }
+    });
+  </script>
+</body>
+</html>
