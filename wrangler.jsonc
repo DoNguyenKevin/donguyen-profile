@@ -1,6 +1,7 @@
 {
   "name": "donguyen-profile",
   "compatibility_date": "2025-04-01",
+  "main": "src/index.js",
   "assets": {
     "directory": ".",
     "binding": "ASSETS"
